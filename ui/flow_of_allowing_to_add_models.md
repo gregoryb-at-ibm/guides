@@ -1,5 +1,5 @@
 # Guide for adding a "new" button 
-You need to you already have an application record and a GUI controller that implements a GUI list view (including templates)
+You need to already have an application record and a GUI controller that implements a GUI list view (including templates)
 This guide will tell you how to add a button to the list view that creates new instances of your application record.\
 In this guide we will implement the actual creation of the record in an EMS provider. It could be adjusted to implement it in manageiq core if it doesn't require interaction with an EMS.
 
@@ -34,14 +34,15 @@ If not, add these methods to the base record by copying them from some other mod
 
 
 ## Adding a feature for the new operation 
-1. In `app/models/ext_management_system.rb` 
-   1. add `supports_attribute :supports_create_your_item, :child_model => "YourItem"`
-1. In `manageiq-providers-autosde/app/models/manageiq/providers/your-provider/your_manager.rb`, add `supports :add_your_item`
+1. In `app/models/ext_management_system.rb` add `supports_attribute :supports_create_your_item, :child_model => "YourItem"`
+2. In `manageiq-providers-autosde/app/models/manageiq/providers/your-provider/your_manager.rb`, add `supports :add_your_item`
 
 ## Toolbar Button
 #### Add button to the menu
 Find the menu file in `plugins/manageiq-ui-classic/app/heplers/application_helpers/toolbar/your_items_center.rb`.\
 Add a button into the menu for creating your items. The button needs to be called `:your_item_new`. You can copy a `..._new` button from another menu and adjust to fit your item.
+
+**Note!** Usally we only add "new" button into the list view page and not into a specific your_item textual summary page (obviously becuase the specific your_item is not created yet). In order to add buttons also inside your_item textual summary page you need to do modification to `plugins/manageiq-ui-classic/app/heplers/application_helpers/toolbar/your_item_center.rb` but this is not part of this guide
 
 #### Add button class
 Create a button class to handle "new" operation. 
@@ -84,5 +85,7 @@ This method is supposed to call the method`create_your_item_queue` on the base a
 
 If you are adding a new controller, you'll need to add routes to in `manageiq-api/api.yml`. Copy from one of the existing routes and adjust.
 
-
-
+## Specific EMS support
+If you need to have support for buttons in the menu for a specific ems, for example in case you are entering the list view page from a specific ems dashboard make sure the following are set correctly:
+1. In app/helpers/application_helper/toolbar_chooser.rb make sure your_item is set in two places inside `center_toolbar_filename_classic` function
+2. `plugins/manageiq-ui-classic/app/views/your_item/new.html.haml` should pass `storageManagerId` to JS Form. Make sure `new.html.haml`, `index.jsx` and `your-item-form.schema.js` are set correctly to handle the `storageManagerId`.
